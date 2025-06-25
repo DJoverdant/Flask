@@ -27,15 +27,17 @@ client = mqtt.Client()
 
 #Salva no dados.db
 def salvar_sensor(tipo, valor):
+    data = datetime.now().strftime("%d/%m %X")
     with sqlite3.connect("dados.db") as conn:
         cur = conn.cursor()
-        cur.execute("INSERT INTO sensores (timestamp, tipo, valor) VALUES (?, ?, ?)", (data, tipo, valor))
+        cur.execute("INSERT INTO sensores (timestamp, tipo, valor) VALUES (?, ?, ?) ON CONFLICT (timestamp) DO NOTHING", (data, tipo, valor))
         conn.commit()
 
 def salvar_atuador(dispositivo, comando):
+    data = datetime.now().strftime("%d/%m %X")
     with sqlite3.connect("dados.db") as conn:
         cur = conn.cursor()
-        cur.execute("INSERT INTO atuadores (timestamp, dispositivo, comando) VALUES (?, ?, ?)", (data, dispositivo, comando))
+        cur.execute("INSERT INTO atuadores (timestamp, dispositivo, comando) VALUES (?, ?, ?) ON CONFLICT (timestamp) DO NOTHING", (data, dispositivo, comando))
         conn.commit()
 
 # Callback
@@ -163,7 +165,5 @@ def historico_atuadores():
 
     return render_template_string(HTML_TABELA, titulo="Histórico dos Atuadores", cabecalho=["Data", "Dispositivo", "Comando"], dados=dados)
 
-while True:
-    data = datetime.now().strftime("%d/%m %X")
-    if __name__ == '__main__':
-        app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=False)
