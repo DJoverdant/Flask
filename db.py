@@ -12,17 +12,17 @@ def init_db():
         cur.execute('''
             CREATE TABLE IF NOT EXISTS sensores (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                timestamp TEXT,
-                tipo TEXT,
-                valor TEXT
+                timestamp TEXT NOT NULL UNIQUE,
+                tipo TEXT NOT NULL,
+                valor TEXT NOT NULL
             )
         ''')
         cur.execute('''
             CREATE TABLE IF NOT EXISTS atuadores (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                timestamp TEXT,
-                dispositivo TEXT,
-                comando TEXT
+                timestamp TEXT NOT NULL UNIQUE,
+                dispositivo TEXT NOT NULL,
+                comando TEXT NOT NULL
             )
         ''')
         conn.commit()
