@@ -53,10 +53,12 @@ def on_message(client, userdata, msg):
     
     if msg.topic == 'André/humidade':
         sensor_data['humidade'] = payload
+        salvar_sensor('humidade', payload)
 
     elif msg.topic == 'André/gas':
         sensor_data['gas'] = payload
-
+        salvar_sensor('gas', payload)
+        
 # Inicia o loop MQTT em uma thread separada
 def mqtt_loop():
     client.on_connect = on_connect
