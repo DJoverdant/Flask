@@ -7,20 +7,6 @@ from time import sleep
 
 app = Flask(__name__)
 
-data = datetime.now().strftime("%d/%m/%y %X")
-
-def salvar_sensor(tipo, valor):
-    with sqlite3.connect("dados.db") as conn:
-        cur = conn.cursor()
-        cur.execute("INSERT INTO sensores (timestamp, tipo, valor) VALUES (?, ?, ?)", (data, tipo, valor))
-        conn.commit()
-
-def salvar_atuador(dispositivo, comando):
-    with sqlite3.connect("dados.db") as conn:
-        cur = conn.cursor()
-        cur.execute("INSERT INTO atuadores (timestamp, dispositivo, comando) VALUES (?, ?, ?)", (data, dispositivo, comando))
-        conn.commit()
-
 # Globais
 sensor_data = {
     'humidade': '',
@@ -39,6 +25,19 @@ TOPICOS_PUB = {
 # Inicializa o cliente MQTT
 client = mqtt.Client()
 
+#Salva no dados.db
+def salvar_sensor(tipo, valor):
+    with sqlite3.connect("dados.db") as conn:
+        cur = conn.cursor()
+        cur.execute("INSERT INTO sensores (timestamp, tipo, valor) VALUES (?, ?, ?)", (data, tipo, valor))
+        conn.commit()
+
+def salvar_atuador(dispositivo, comando):
+    with sqlite3.connect("dados.db") as conn:
+        cur = conn.cursor()
+        cur.execute("INSERT INTO atuadores (timestamp, dispositivo, comando) VALUES (?, ?, ?)", (data, dispositivo, comando))
+        conn.commit()
+
 # Callback
 def on_connect(client, userdata, flags, rc):
     print(f'Conectado ao broker MQTT com código: {rc}')
@@ -48,17 +47,18 @@ def on_connect(client, userdata, flags, rc):
 
 # Callback de recebimento de mensagens
 def on_message(client, userdata, msg):
+    
     payload = msg.payload.decode()
     print(f'Recebido: {msg.topic} -> {payload}')
     
     if msg.topic == 'André/humidade':
-        sensor_data['humidade'] = payload
         salvar_sensor('humidade', payload)
+        sensor_data['humidade'] = payload
 
     elif msg.topic == 'André/gas':
-        sensor_data['gas'] = payload
         salvar_sensor('gas', payload)
-        
+        sensor_data['gas'] = payload
+
 # Inicia o loop MQTT em uma thread separada
 def mqtt_loop():
     client.on_connect = on_connect
@@ -163,5 +163,7 @@ def historico_atuadores():
 
     return render_template_string(HTML_TABELA, titulo="Histórico dos Atuadores", cabecalho=["Data", "Dispositivo", "Comando"], dados=dados)
 
-if __name__ == '__main__':
-    app.run(debug=True)
+while True:
+    data = datetime.now().strftime("%d/%m %X")
+    if __name__ == '__main__':
+        app.run(debug=True)
