@@ -53,11 +53,11 @@ def on_message(client, userdata, msg):
     payload = msg.payload.decode()
     print(f'Recebido: {msg.topic} -> {payload}')
     
-    if msg.topic == 'André/humidade':
+    if (msg.topic == 'André/humidade') and (sensor_data['humidade'] != payload):
         salvar_sensor('humidade', payload)
         sensor_data['humidade'] = payload
 
-    elif msg.topic == 'André/gas':
+    elif (msg.topic == 'André/gas') and (sensor_data['gas'] != payload):
         salvar_sensor('gas', payload)
         sensor_data['gas'] = payload
 
@@ -131,6 +131,7 @@ def controle_buzzer():
     freq = request.form.get('frequencia')
     vol = request.form.get('volume')
     mensagem = f'{freq},{vol}'
+    
     client.publish(TOPICOS_PUB['buzzer'], mensagem)
     salvar_atuador("buzzer", mensagem)
 
